@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "move-pro-led",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-Command", "Start-Process -NoNewWindow python -ArgumentList '-m http.server 3000' -WorkingDirectory 'C:/Users/brindel2024/site calude/move-pro-led'"],
+      "port": 3000
+    }
+  ]
+}
