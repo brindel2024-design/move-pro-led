@@ -1041,25 +1041,17 @@ footer{background:var(--noir);border-top:1px solid var(--noir-border)}
     <div class="checkout-panel" id="panel3">
       <div class="checkout-body">
         <div class="checkout-summary" id="checkout-summary"></div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Numéro de carte *</label>
-            <input type="text" id="f-card" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric"/>
+        <div style="margin-top:1.25rem;padding:1rem;background:rgba(232,24,42,.06);border:1px solid rgba(232,24,42,.2);border-radius:4px">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l5 2.5v4C13 11 8 15 8 15S3 11 3 7.5V3.5L8 1z" stroke="var(--red)" stroke-width="1.3" fill="none"/><path d="M5.5 8l2 2 3-3" stroke="var(--red)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:.72rem;font-weight:600;color:var(--cream);letter-spacing:.05em">PAIEMENT SÉCURISÉ STRIPE</span>
           </div>
-        </div>
-        <div class="form-row col2">
-          <div class="form-group">
-            <label>Expiration *</label>
-            <input type="text" id="f-exp" placeholder="MM/AA" maxlength="5"/>
+          <p style="font-size:.72rem;color:var(--grey);line-height:1.6">Vous allez être redirigé vers la page de paiement sécurisée Stripe. Vos données bancaires ne transitent jamais par notre site.</p>
+          <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/1280px-Visa.svg.png" alt="Visa" style="height:18px;opacity:.7"/>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" style="height:18px;opacity:.7"/>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1280px-American_Express_logo_%282018%29.svg.png" alt="Amex" style="height:18px;opacity:.7"/>
           </div>
-          <div class="form-group">
-            <label>CVV *</label>
-            <input type="text" id="f-cvv" placeholder="123" maxlength="3" inputmode="numeric"/>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l4 2v4c0 3.5-4 6-4 6S3 10.5 3 7V3l4-2z" stroke="rgba(136,136,136,.5)" stroke-width="1.2"/></svg>
-          <span style="font-size:.65rem;color:var(--grey)">Paiement 100% sécurisé SSL · Données chiffrées</span>
         </div>
       </div>
     </div>
@@ -1267,6 +1259,26 @@ document.getElementById('year').textContent=new Date().getFullYear();
 // Restaurer le panier au chargement
 updateCartUI();
 
+// Détecter retour depuis Stripe (?commande=success)
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('commande')==='success'){
+    // Nettoyer l'URL
+    window.history.replaceState({},'',window.location.pathname);
+    // Afficher le modal succès
+    const ref='CMD-'+Math.floor(100000+Math.random()*900000);
+    document.getElementById('order-ref').textContent=ref;
+    document.getElementById('checkout-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    // Aller direct à l'écran succès
+    ['1','2','3'].forEach(p=>{const el=document.getElementById('panel'+p);if(el)el.classList.remove('active');});
+    document.getElementById('panel-success').classList.add('active');
+    document.getElementById('checkout-nav').style.display='none';
+    document.getElementById('checkout-steps').style.display='none';
+    if(typeof gtag!=='undefined')gtag('event','purchase',{transaction_id:ref,currency:'EUR',value:299});
+  }
+})();
+
 // ============ CART ============
 const PRODUCT={id:'move-pro-1',name:'Move Pro Red LED Therapy',price:299,img:'public/images/product-1.png'};
 
@@ -1382,7 +1394,7 @@ function renderCheckoutStep(){
   });
   document.getElementById('checkout-back-btn').style.display=checkoutStep>1?'block':'none';
   const nb=document.getElementById('checkout-next-btn');
-  nb.innerHTML=checkoutStep===3?'🔒 Confirmer la commande':'Continuer <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  nb.innerHTML=checkoutStep===3?'🔒 Payer maintenant avec Stripe':'Continuer <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   if(checkoutStep===3)buildSummary();
 }
 
@@ -1414,10 +1426,8 @@ function validateStep(){
     if(!a||!c||!v){shakeNext();return false;}
   }
   if(checkoutStep===3){
-    const card=document.getElementById('f-card').value.replace(/\s/g,'');
-    const exp=document.getElementById('f-exp').value.trim();
-    const cvv=document.getElementById('f-cvv').value.trim();
-    if(card.length<16||!exp||cvv.length<3){shakeNext();return false;}
+    // Validation OK — redirection Stripe
+    return true;
   }
   return true;
 }
@@ -1426,33 +1436,28 @@ function shakeNext(){
   b.style.background='#B5111F';
   setTimeout(()=>{b.style.background='';},300);
 }
+const STRIPE_PAYMENT_LINK='https://buy.stripe.com/5kQeVefyO4TVbIofgCcbC00';
+
 function checkoutNext(){
   if(!validateStep())return;
   if(checkoutStep<3){checkoutStep++;renderCheckoutStep();}
   else{
+    // Construire le lien Stripe avec pré-remplissage email + référence commande
+    const email=(document.getElementById('f-email').value||'').trim();
     const ref='CMD-'+Math.floor(100000+Math.random()*900000);
-    document.getElementById('order-ref').textContent=ref;
-    checkoutStep=4;renderCheckoutStep();
+    const qty=cart.reduce((s,i)=>s+i.qty,0);
+    let stripeUrl=STRIPE_PAYMENT_LINK+'?client_reference_id='+ref;
+    if(email)stripeUrl+='&prefilled_email='+encodeURIComponent(email);
+    // Tracker l'initiation de paiement
+    if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:cart.reduce((s,i)=>s+i.price*i.qty,0),items:[{item_id:PRODUCT.id,item_name:PRODUCT.name,price:PRODUCT.price,quantity:qty}]});
+    // Vider le panier et rediriger vers Stripe
     cart=[];saveCart();updateCartUI();
-    if(typeof gtag!=='undefined')gtag('event','purchase',{transaction_id:ref,currency:'EUR',value:cart.reduce((s,i)=>s+i.price*i.qty,0)});
+    window.location.href=stripeUrl;
   }
 }
 function checkoutBack(){if(checkoutStep>1){checkoutStep--;renderCheckoutStep();}}
 
-// Card formatting
-document.addEventListener('DOMContentLoaded',()=>{
-  const card=document.getElementById('f-card');
-  if(card)card.addEventListener('input',e=>{
-    let v=e.target.value.replace(/\D/g,'').substring(0,16);
-    e.target.value=v.replace(/(.{4})/g,'$1 ').trim();
-  });
-  const exp=document.getElementById('f-exp');
-  if(exp)exp.addEventListener('input',e=>{
-    let v=e.target.value.replace(/\D/g,'').substring(0,4);
-    if(v.length>=3)v=v.substring(0,2)+'/'+v.substring(2);
-    e.target.value=v;
-  });
-});
+// Formatage carte supprimé — paiement géré par Stripe
 
 // ---- LIGHTBOX ----
 function openLightbox(src){
