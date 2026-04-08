@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"/>
+<!-- Google Analytics 4 — remplacez G-XXXXXXXXXX par votre Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1256,25 +1264,37 @@ ORDER_INCLUDES.forEach(item=>{oi.innerHTML+=`<li><div class="check-sm"><svg widt
 
 // Footer year
 document.getElementById('year').textContent=new Date().getFullYear();
+// Restaurer le panier au chargement
+updateCartUI();
 
 // ============ CART ============
 const PRODUCT={id:'move-pro-1',name:'Move Pro Red LED Therapy',price:299,img:'public/images/product-1.png'};
-let cart=[];
+
+// Charger le panier depuis localStorage
+function loadCart(){
+  try{const saved=localStorage.getItem('movepro_cart');return saved?JSON.parse(saved):[];}
+  catch(e){return [];}
+}
+function saveCart(){
+  try{localStorage.setItem('movepro_cart',JSON.stringify(cart));}catch(e){}
+}
+let cart=loadCart();
 
 function addToCart(qty=1){
   const ex=cart.find(i=>i.id===PRODUCT.id);
   if(ex){ex.qty+=qty;}else{cart.push({...PRODUCT,qty});}
-  updateCartUI();openCart();
+  saveCart();updateCartUI();openCart();
+  if(typeof gtag!=='undefined')gtag('event','add_to_cart',{currency:'EUR',value:PRODUCT.price*qty,items:[{item_id:PRODUCT.id,item_name:PRODUCT.name,price:PRODUCT.price,quantity:qty}]});
   const b=document.getElementById('cart-btn');
   b.style.borderColor='var(--red)';b.style.color='var(--red)';
   setTimeout(()=>{b.style.borderColor='';b.style.color='';},600);
 }
 
-function removeFromCart(id){cart=cart.filter(i=>i.id!==id);updateCartUI();}
+function removeFromCart(id){cart=cart.filter(i=>i.id!==id);saveCart();updateCartUI();}
 
 function updateQty(id,delta){
   const item=cart.find(i=>i.id===id);
-  if(!item)return;item.qty=Math.max(1,item.qty+delta);updateCartUI();
+  if(!item)return;item.qty=Math.max(1,item.qty+delta);saveCart();updateCartUI();
 }
 
 function updateCartUI(){
@@ -1413,7 +1433,8 @@ function checkoutNext(){
     const ref='CMD-'+Math.floor(100000+Math.random()*900000);
     document.getElementById('order-ref').textContent=ref;
     checkoutStep=4;renderCheckoutStep();
-    cart=[];updateCartUI();
+    cart=[];saveCart();updateCartUI();
+    if(typeof gtag!=='undefined')gtag('event','purchase',{transaction_id:ref,currency:'EUR',value:cart.reduce((s,i)=>s+i.price*i.qty,0)});
   }
 }
 function checkoutBack(){if(checkoutStep>1){checkoutStep--;renderCheckoutStep();}}
