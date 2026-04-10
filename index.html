@@ -662,7 +662,7 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
             <span class="price-save">−25%</span>
           </div>
           <ul class="buy-includes" id="buy-includes"></ul>
-          <button class="buy-btn" onclick="addToCart()">Ajouter au panier</button>
+          <button class="buy-btn" onclick="buyNow()">Commander maintenant →</button>
           <div class="buy-meta">
             <span>🔒 Paiement sécurisé</span>
             <span class="buy-meta-sep">·</span>
@@ -766,7 +766,7 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
   <div class="cart-foot" id="cart-foot" style="display:none">
     <div class="cart-total-row"><span>Sous-total</span><strong id="cart-total">0€</strong></div>
     <p class="cart-ship-note">✓ Livraison gratuite incluse</p>
-    <button class="cart-checkout-btn" onclick="openCheckout()">Passer commande →</button>
+    <button class="cart-checkout-btn" onclick="buyNow()">Passer commande →</button>
     <p class="cart-continue" onclick="closeCart()">← Continuer mes achats</p>
   </div>
 </aside>
@@ -984,7 +984,8 @@ const STRIPE_LINK='https://buy.stripe.com/5kQeVefyO4TVbIofgCcbC00';
 
 function buyNow(){
   if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:PRODUCT.price,items:[{item_id:PRODUCT.id,item_name:PRODUCT.name,price:PRODUCT.price,quantity:1}]});
-  window.location.href=STRIPE_LINK;
+  document.body.style.overflow='';
+  try{window.location.assign(STRIPE_LINK);}catch(e){window.open(STRIPE_LINK,'_self');}
 }
 
 function loadCart(){try{const s=localStorage.getItem('movepro_v2');return s?JSON.parse(s):[]}catch{return[]}}
