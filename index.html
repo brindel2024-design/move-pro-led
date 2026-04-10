@@ -1018,7 +1018,7 @@ const FORMSPREE='https://formspree.io/f/xkoplvrk';
 function openCheckout(){closeCart();document.getElementById('checkout-overlay').classList.add('open');document.body.style.overflow='hidden';}
 function closeCheckout(){document.getElementById('checkout-overlay').classList.remove('open');document.body.style.overflow='';}
 
-async function submitOrder(e){
+function submitOrder(e){
   e.preventDefault();
   const form=e.target;
   const inputs=form.querySelectorAll('[required]');
@@ -1026,25 +1026,19 @@ async function submitOrder(e){
   inputs.forEach(i=>{if(!i.value.trim()){i.style.borderColor='var(--red)';ok=false;}else{i.style.borderColor='';}});
   if(!ok){document.getElementById('of-error').style.display='block';return;}
   document.getElementById('of-error').style.display='none';
-  const btn=document.getElementById('of-submit');
-  const txt=document.getElementById('of-btn-text');
-  btn.disabled=true;
-  txt.textContent='⏳ Envoi en cours...';
   const data=new FormData(form);
   data.append('produit','Move Pro Red LED Therapy — 660nm + 850nm');
   data.append('montant','299€');
   data.append('reference','CMD-'+Math.floor(100000+Math.random()*900000));
+  /* Envoi Formspree en arrière-plan — ne bloque JAMAIS la redirection */
+  try{fetch(FORMSPREE,{method:'POST',body:data,headers:{Accept:'application/json'}});}catch(err){}
+  /* Redirection Stripe immédiate */
   const email=form.querySelector('[name="email"]').value.trim();
-  const goStripe=()=>{
-    let url=STRIPE_LINK;
-    if(email)url+='?prefilled_email='+encodeURIComponent(email);
-    closeCheckout();
-    window.location.assign(url);
-  };
-  try{
-    const r=await fetch(FORMSPREE,{method:'POST',body:data,headers:{Accept:'application/json'}});
-    goStripe();
-  }catch{goStripe();}
+  let url=STRIPE_LINK;
+  if(email)url+='?prefilled_email='+encodeURIComponent(email);
+  if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:PRODUCT.price});
+  closeCheckout();
+  window.location.assign(url);
 }
 
 function buyNow(){
