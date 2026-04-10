@@ -443,7 +443,7 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
         <h1 class="hero-title">Récupération.<br>Performance.<br><span>Lumière Rouge.</span></h1>
         <p class="hero-sub">Move Pro combine 660nm et 850nm pour stimuler vos mitochondries, accélérer la récupération musculaire et améliorer votre bien-être — comme les professionnels du sport.</p>
         <div class="hero-actions">
-          <button class="btn btn-red" onclick="addToCart()">Commander — 299€ <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="btn btn-red" onclick="buyNow()">Commander — 299€ <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <a href="#how" class="btn btn-outline">Voir comment ça marche</a>
         </div>
         <div class="hero-proof">
@@ -574,7 +574,7 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
           <p>Move Pro Red LED Light Therapy</p>
           <small>Démonstration complète — 660nm + 850nm</small>
         </div>
-        <button class="btn btn-red" style="font-size:.72rem;padding:.65rem 1.4rem" onclick="addToCart()">Commander maintenant</button>
+        <button class="btn btn-red" style="font-size:.72rem;padding:.65rem 1.4rem" onclick="buyNow()">Commander maintenant</button>
       </div>
     </div>
   </div>
@@ -847,7 +847,7 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
       </div>
       <div style="display:flex;align-items:center;gap:1.5rem">
         <div><span class="float-price">299€</span><span class="float-price-old">399€</span></div>
-        <button class="btn btn-red" onclick="addToCart()" style="font-size:.72rem;padding:.7rem 1.5rem">Commander</button>
+        <button class="btn btn-red" onclick="buyNow()" style="font-size:.72rem;padding:.7rem 1.5rem">Commander</button>
       </div>
     </div>
   </div>
@@ -981,6 +981,11 @@ if(window.innerWidth>=768)navCta.style.display='inline-flex';
 /* ─── CART ─── */
 const PRODUCT={id:'move-pro-1',name:'Move Pro Red LED Therapy',price:299,img:'public/images/product-1.png'};
 const STRIPE_LINK='https://buy.stripe.com/5kQeVefyO4TVbIofgCcbC00';
+
+function buyNow(){
+  if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:PRODUCT.price,items:[{item_id:PRODUCT.id,item_name:PRODUCT.name,price:PRODUCT.price,quantity:1}]});
+  window.location.href=STRIPE_LINK;
+}
 
 function loadCart(){try{const s=localStorage.getItem('movepro_v2');return s?JSON.parse(s):[]}catch{return[]}}
 function saveCart(){try{localStorage.setItem('movepro_v2',JSON.stringify(cart))}catch{}}
