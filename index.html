@@ -771,66 +771,52 @@ footer{background:var(--black);color:rgba(255,255,255,.6)}
   </div>
 </aside>
 
-<!-- CHECKOUT -->
-<div id="checkout-overlay">
+<!-- ORDER FORM MODAL -->
+<div id="checkout-overlay" onclick="if(event.target===this)closeCheckout()">
   <div id="checkout-modal">
     <div class="co-head">
-      <h2>Finaliser la commande</h2>
+      <div>
+        <h2 style="font-size:1rem;font-weight:800;letter-spacing:0">Finaliser ma commande</h2>
+        <p style="font-size:.75rem;color:var(--grey);margin-top:.25rem">Move Pro Red LED — 299€ · Livraison gratuite 🚚</p>
+      </div>
       <button class="co-close" onclick="closeCheckout()">✕</button>
     </div>
-    <div class="co-steps">
-      <div class="co-step"><div class="cs-circle active" id="cs1">1</div><span class="cs-label active" id="cl1">Coordonnées</span></div>
-      <div class="co-step"><div class="cs-circle" id="cs2">2</div><span class="cs-label" id="cl2">Livraison</span></div>
-      <div class="co-step"><div class="cs-circle" id="cs3">3</div><span class="cs-label" id="cl3">Confirmation</span></div>
-    </div>
-    <div class="co-panel active" id="cop1">
+    <form id="order-form" onsubmit="submitOrder(event)" novalidate>
       <div class="co-body">
         <div class="form-row-2">
-          <div class="form-group"><label>Prénom *</label><input type="text" id="f-prenom" placeholder="Marie" autocomplete="given-name"/></div>
-          <div class="form-group"><label>Nom *</label><input type="text" id="f-nom" placeholder="Dupont" autocomplete="family-name"/></div>
+          <div class="form-group"><label>Prénom *</label><input type="text" name="prenom" placeholder="Marie" required autocomplete="given-name"/></div>
+          <div class="form-group"><label>Nom *</label><input type="text" name="nom" placeholder="Dupont" required autocomplete="family-name"/></div>
         </div>
-        <div class="form-group"><label>Email *</label><input type="email" id="f-email" placeholder="marie@email.com" autocomplete="email"/></div>
-        <div class="form-group"><label>Téléphone</label><input type="tel" id="f-tel" placeholder="+33 6 00 00 00 00" autocomplete="tel"/></div>
-      </div>
-    </div>
-    <div class="co-panel" id="cop2">
-      <div class="co-body">
-        <div class="form-group"><label>Adresse *</label><input type="text" id="f-addr" placeholder="12 rue de la Paix" autocomplete="street-address"/></div>
+        <div class="form-group"><label>Email *</label><input type="email" name="email" id="of-email" placeholder="marie@email.com" required autocomplete="email"/></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" name="telephone" placeholder="+33 6 00 00 00 00" autocomplete="tel"/></div>
+        <div class="form-group"><label>Adresse *</label><input type="text" name="adresse" placeholder="12 rue de la Paix" required autocomplete="street-address"/></div>
         <div class="form-row-2">
-          <div class="form-group"><label>Code postal *</label><input type="text" id="f-cp" placeholder="75001" autocomplete="postal-code"/></div>
-          <div class="form-group"><label>Ville *</label><input type="text" id="f-city" placeholder="Paris" autocomplete="address-level2"/></div>
+          <div class="form-group"><label>Code postal *</label><input type="text" name="code_postal" placeholder="75001" required autocomplete="postal-code"/></div>
+          <div class="form-group"><label>Ville *</label><input type="text" name="ville" placeholder="Paris" required autocomplete="address-level2"/></div>
         </div>
         <div class="form-group"><label>Pays</label>
-          <select id="f-country" autocomplete="country"><option value="FR">France</option><option value="BE">Belgique</option><option value="CH">Suisse</option><option value="LU">Luxembourg</option><option value="CA">Canada</option></select>
+          <select name="pays" autocomplete="country">
+            <option value="France">France</option><option value="Belgique">Belgique</option>
+            <option value="Suisse">Suisse</option><option value="Luxembourg">Luxembourg</option>
+            <option value="Canada">Canada</option>
+          </select>
         </div>
-      </div>
-    </div>
-    <div class="co-panel" id="cop3">
-      <div class="co-body">
-        <div class="order-summary" id="order-summary"></div>
-        <div class="stripe-box">
+        <div class="stripe-box" style="margin-top:1.25rem">
           <div class="stripe-box-title">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l4 2v4C11 10 7 13 7 13S3 10 3 7V3L7 1z" stroke="var(--red)" stroke-width="1.2" fill="none"/><path d="M4.5 7l2 2 3-3" stroke="var(--red)" stroke-width="1.2" stroke-linecap="round"/></svg>
-            Paiement sécurisé via Stripe
+            Paiement 100% sécurisé via Stripe
           </div>
-          <p>Vous allez être redirigé vers Stripe. Vos données bancaires ne transitent jamais par notre site.</p>
+          <p>Après confirmation, vous serez redirigé vers Stripe. Vos données bancaires ne transitent jamais par notre site.</p>
         </div>
+        <p id="of-error" style="display:none;color:var(--red);font-size:.78rem;margin-top:.75rem;font-weight:600">⚠ Veuillez remplir tous les champs obligatoires.</p>
       </div>
-    </div>
-    <div class="co-panel" id="cop-success">
-      <div class="co-success">
-        <div class="success-circle"><svg viewBox="0 0 28 28" fill="none"><path d="M5 14l6 6L23 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <h3>Commande confirmée !</h3>
-        <p>Merci pour votre achat. Vous recevrez un email de confirmation sous quelques minutes.</p>
-        <div class="order-ref-tag" id="order-ref">CMD-000000</div>
-        <p style="font-size:.78rem;color:var(--grey)">Livraison estimée : <strong>3 à 5 jours ouvrés</strong></p>
-        <button class="btn btn-red" onclick="closeCheckout()">Retour à la boutique</button>
+      <div class="co-nav" style="position:sticky;bottom:0;background:#fff">
+        <button type="submit" id="of-submit" class="co-next" style="flex:1">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l4 2v4C11 10 7 13 7 13S3 10 3 7V3L7 1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span id="of-btn-text">Payer 299€ avec Stripe →</span>
+        </button>
       </div>
-    </div>
-    <div class="co-nav" id="co-nav">
-      <button class="co-back" id="co-back-btn" onclick="coBack()" style="display:none">← Retour</button>
-      <button class="co-next" id="co-next-btn" onclick="coNext()">Continuer →</button>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -1026,73 +1012,45 @@ function openCart(){document.getElementById('cart-overlay').classList.add('open'
 function closeCart(){document.getElementById('cart-overlay').classList.remove('open');document.getElementById('cart-drawer').classList.remove('open');document.body.style.overflow='';}
 document.getElementById('cart-btn').addEventListener('click',()=>document.getElementById('cart-drawer').classList.contains('open')?closeCart():openCart());
 
-/* ─── CHECKOUT ─── */
-let coStep=1;
-function openCheckout(){if(!cart.length)return;closeCart();coStep=1;renderCoStep();document.getElementById('checkout-overlay').classList.add('open');document.body.style.overflow='hidden';}
-function closeCheckout(){document.getElementById('checkout-overlay').classList.remove('open');document.body.style.overflow='';setTimeout(()=>{coStep=1;renderCoStep();},400);}
-function renderCoStep(){
-  ['1','2','3','-success'].forEach(p=>{const e=document.getElementById('cop'+p);if(e)e.classList.remove('active');});
-  if(coStep===4){document.getElementById('cop-success').classList.add('active');document.getElementById('co-nav').style.display='none';}
-  else{document.getElementById('cop'+coStep).classList.add('active');document.getElementById('co-nav').style.display='flex';}
-  [1,2,3].forEach(n=>{
-    const c=document.getElementById('cs'+n),l=document.getElementById('cl'+n);
-    c.classList.remove('active','done');l.classList.remove('active');
-    if(n<coStep){c.classList.add('done');c.textContent='✓';}else{c.textContent=n;}
-    if(n===coStep){c.classList.add('active');l.classList.add('active');}
-  });
-  document.getElementById('co-back-btn').style.display=coStep>1?'block':'none';
-  const nb=document.getElementById('co-next-btn');
-  nb.textContent=coStep===3?'🔒 Payer avec Stripe':'Continuer →';
-  if(coStep===3)buildSummary();
-}
-function buildSummary(){
-  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  let h=cart.map(i=>`<div class="os-item"><span>${i.name} × ${i.qty}</span><strong>${i.price*i.qty}€</strong></div>`).join('');
-  h+=`<div class="os-item"><span>Livraison</span><strong style="color:#16A34A">Gratuite 🚚</strong></div>`;
-  h+=`<div class="os-item total"><span>Total</span><strong>${total}€</strong></div>`;
-  document.getElementById('order-summary').innerHTML=h;
-}
-function coNext(){
-  if(coStep===1){
-    const p=document.getElementById('f-prenom').value.trim();
-    const n=document.getElementById('f-nom').value.trim();
-    const e=document.getElementById('f-email').value.trim();
-    if(!p||!n||!e||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){document.getElementById('co-next-btn').style.background='#C4111F';setTimeout(()=>document.getElementById('co-next-btn').style.background='',300);return;}
-  }
-  if(coStep===2){
-    const a=document.getElementById('f-addr').value.trim();
-    const c=document.getElementById('f-cp').value.trim();
-    const v=document.getElementById('f-city').value.trim();
-    if(!a||!c||!v){document.getElementById('co-next-btn').style.background='#C4111F';setTimeout(()=>document.getElementById('co-next-btn').style.background='',300);return;}
-  }
-  if(coStep<3){coStep++;renderCoStep();}
-  else{
-    const email=document.getElementById('f-email').value.trim();
-    const ref='CMD-'+Math.floor(100000+Math.random()*900000);
-    let url=STRIPE_LINK+'?client_reference_id='+ref;
-    if(email)url+='&prefilled_email='+encodeURIComponent(email);
-    if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:cart.reduce((s,i)=>s+i.price*i.qty,0)});
-    cart=[];saveCart();renderCart();
-    window.location.href=url;
-  }
-}
-function coBack(){if(coStep>1){coStep--;renderCoStep();}}
+/* ─── FORMSPREE + CHECKOUT ─── */
+const FORMSPREE='https://formspree.io/f/REMPLACE_PAR_TON_ID';
 
-/* ─── SUCCESS REDIRECT ─── */
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('commande')==='success'){
-    window.history.replaceState({},'',window.location.pathname);
-    const ref='CMD-'+Math.floor(100000+Math.random()*900000);
-    document.getElementById('order-ref').textContent=ref;
-    document.getElementById('checkout-overlay').classList.add('open');
-    document.body.style.overflow='hidden';
-    ['1','2','3'].forEach(n=>{const e=document.getElementById('cop'+n);if(e)e.classList.remove('active');});
-    document.getElementById('cop-success').classList.add('active');
-    document.getElementById('co-nav').style.display='none';
-    if(typeof gtag!=='undefined')gtag('event','purchase',{transaction_id:ref,currency:'EUR',value:299});
-  }
-})();
+function openCheckout(){closeCart();document.getElementById('checkout-overlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeCheckout(){document.getElementById('checkout-overlay').classList.remove('open');document.body.style.overflow='';}
+
+async function submitOrder(e){
+  e.preventDefault();
+  const form=e.target;
+  const inputs=form.querySelectorAll('[required]');
+  let ok=true;
+  inputs.forEach(i=>{if(!i.value.trim()){i.style.borderColor='var(--red)';ok=false;}else{i.style.borderColor='';}});
+  if(!ok){document.getElementById('of-error').style.display='block';return;}
+  document.getElementById('of-error').style.display='none';
+  const btn=document.getElementById('of-submit');
+  const txt=document.getElementById('of-btn-text');
+  btn.disabled=true;
+  txt.textContent='⏳ Envoi en cours...';
+  const data=new FormData(form);
+  data.append('produit','Move Pro Red LED Therapy — 660nm + 850nm');
+  data.append('montant','299€');
+  data.append('reference','CMD-'+Math.floor(100000+Math.random()*900000));
+  const email=form.querySelector('[name="email"]').value.trim();
+  const goStripe=()=>{
+    let url=STRIPE_LINK;
+    if(email)url+='?prefilled_email='+encodeURIComponent(email);
+    closeCheckout();
+    window.location.assign(url);
+  };
+  try{
+    const r=await fetch(FORMSPREE,{method:'POST',body:data,headers:{Accept:'application/json'}});
+    goStripe();
+  }catch{goStripe();}
+}
+
+function buyNow(){
+  if(typeof gtag!=='undefined')gtag('event','begin_checkout',{currency:'EUR',value:PRODUCT.price});
+  openCheckout();
+}
 
 /* ─── FAQ ─── */
 function toggleFaq(btn){
