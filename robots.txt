@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://helyxfr.fr/sitemap.xml
+
+# Crawl-delay pour serveurs partagés
+Crawl-delay: 1
